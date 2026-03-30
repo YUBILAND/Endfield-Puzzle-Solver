@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ex1_pieces, ex1_tiling } from "@/lib/puzzleData";
 import { GridSelect } from "react-grid-select";
 import { Trash } from "lucide-react";
+import { solvePuzzle } from "@/lib/hardPuzzleSolver";
 function PuzzleMaker() {
   const currentTiling = ex1_tiling;
   const currentPieces = ex1_pieces;
@@ -68,6 +69,8 @@ function PuzzleMaker() {
     setGridTics(newGridTics);
   };
 
+  const sizeStage = step === 1;
+
   const barStage = step === 2 && gridSize && gridTics;
 
   const calculateFillCells = () => {
@@ -77,11 +80,61 @@ function PuzzleMaker() {
     console.log(gridTics[1]);
   };
 
+  const [solved, setSolved] = useState<boolean | null>(null);
+
+  const emptyGrid = Array.from({ length: gridSize?.rows ?? 0 }, () =>
+    Array.from({ length: gridSize?.cols ?? 0 }, () => 0),
+  );
+
+  const [pieceLocations, setPieceLocations] = useState<
+    { piece: number[][]; cells: [number, number][] }[]
+  >([]);
+  const addPieceLocation = (location: {
+    piece: number[][];
+    cells: [number, number][];
+  }) => {
+    setPieceLocations((prev) => [...prev, location]);
+  };
+  const removePieceLocation = (location: {
+    piece: number[][];
+    cells: [number, number][];
+  }) => {
+    setPieceLocations((prev) => prev.slice(0, -1));
+  };
+
+  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
+
+  const handleSolvePuzzle = () => {
+    const start = performance.now();
+    const result = solvePuzzle({
+      emptyGrid: emptyGrid,
+      barTick: [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+      ],
+      userTick: [
+        [5, 4, 3, 2, 1],
+        [5, 4, 3, 2, 1],
+      ],
+      pieces: currentPieces,
+      addPieceLocation,
+      removePieceLocation,
+    });
+    setElapsedMs(performance.now() - start);
+    if (result) {
+      console.log("Puzzle solved");
+      setSolved(true);
+      console.table(emptyGrid);
+    } else {
+      console.log("No solution found");
+      setSolved(false);
+    }
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen ">
       <div className="flex flex-col basis-3/5 items-center justify-center">
         <div>
-          {step === 1 ? (
+          {sizeStage ? (
             <div>
               <div>Select Grid Size</div>
 
@@ -104,26 +157,66 @@ function PuzzleMaker() {
           ) : barStage ? (
             <div className="relative">
               <PuzzleGrid
-                gridSize={gridSize!}
-                gridTics={gridTics!}
+                gridSize={gridSize}
+                gridTics={gridTics}
                 filledCells={filledCells!}
                 handleClickBar={handleClickBar}
                 handleEraseBar={handleEraseBar}
               />
+              <div onClick={() => handleSolvePuzzle()}>Solve Puzzle</div>
             </div>
           ) : (
             <div>Step 3 Content</div>
           )}
-
           <button onClick={() => handleDone()}>Done</button>
           {barStage && (
             <button onClick={() => calculateFillCells()}>Calculate</button>
           )}
         </div>
+        <div>Add Pieces</div>
+        <div>
+          <div className="grid grid-cols-2 gap-8 place-items-center ">
+            {/* Right Side */}
+            {gridSize && <CellGrid gridSize={gridSize} />}
+            {/* Puzzle Pieces */}
+            {/* {currentPieces.map((piece, pieceIndex) => (
+              <div key={pieceIndex} className="border-2 p-8 ">
+                {piece.map((row, rowIndex) => (
+                  <div key={rowIndex} className="flex">
+                    {row.map((cell, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className={`w-8 h-8  ${cell ? "bg-green-500 border" : "bg-transparent"}`}
+                      ></div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))} */}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+const CellGrid = ({
+  gridSize,
+}: {
+  gridSize: { rows: number; cols: number };
+}) => {
+  return (
+    <div className="flex flex-row gap-1">
+      {Array.from({ length: gridSize.rows }).map((_, rowIndex) => (
+        <div key={rowIndex} className="grid grid-cols-1 gap-1">
+          {Array.from({ length: gridSize.cols }).map((_, colIndex) => (
+            <div key={colIndex} className="w-8 h-8 border" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const TopBarGroup = ({
   gridSize,
@@ -221,6 +314,7 @@ const PuzzleGrid = ({
   filledCells,
   handleClickBar,
   handleEraseBar,
+  hideBars = { top: false, left: false },
 }: {
   gridSize: { rows: number; cols: number };
   gridTics: [number[], number[]];
@@ -232,18 +326,24 @@ const PuzzleGrid = ({
     barIndex: number,
   ) => void;
   handleEraseBar: (direction: "top" | "left", index: number) => void;
+  hideBars?: {
+    top?: boolean;
+    left?: boolean;
+  };
 }) => {
   return Array.from({ length: gridSize.rows }).map((_, rowIndex) => (
     <div key={rowIndex} className="relative flex">
-      <div className="absolute right-full top-1/2 -translate-y-1/2 flex flex-row gap-x-2 mr-4">
-        <LeftBarGroup
-          gridSize={gridSize}
-          rowIndex={rowIndex}
-          gridTics={gridTics}
-          handleClickBar={handleClickBar}
-          handleEraseBar={handleEraseBar}
-        />
-      </div>
+      {!hideBars.left && (
+        <div className="absolute right-full top-1/2 -translate-y-1/2 flex flex-row gap-x-2 mr-4">
+          <LeftBarGroup
+            gridSize={gridSize}
+            rowIndex={rowIndex}
+            gridTics={gridTics}
+            handleClickBar={handleClickBar}
+            handleEraseBar={handleEraseBar}
+          />
+        </div>
+      )}
 
       {Array.from({ length: gridSize.cols }).map((_, colIndex) => {
         return (
@@ -253,16 +353,18 @@ const PuzzleGrid = ({
           >
             {rowIndex === 0 && (
               <>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 gap-2 flex flex-col">
-                  <TopBarGroup
-                    gridSize={gridSize}
-                    colIndex={colIndex}
-                    rowIndex={rowIndex}
-                    gridTics={gridTics}
-                    handleClickBar={handleClickBar}
-                    handleEraseBar={handleEraseBar}
-                  />
-                </div>
+                {!hideBars.top && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 gap-2 flex flex-col">
+                    <TopBarGroup
+                      gridSize={gridSize}
+                      colIndex={colIndex}
+                      rowIndex={rowIndex}
+                      gridTics={gridTics}
+                      handleClickBar={handleClickBar}
+                      handleEraseBar={handleEraseBar}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>

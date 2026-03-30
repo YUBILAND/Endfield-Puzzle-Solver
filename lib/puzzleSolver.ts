@@ -1,4 +1,4 @@
-export function canPlacePiece(
+function canPlacePiece(
   tiling: number[][],
   piece: number[][],
   row: number,
@@ -23,7 +23,7 @@ export function canPlacePiece(
   }
   return true;
 }
-export function placePiece(
+function placePiece(
   tiling: number[][],
   piece: number[][],
   row: number,
@@ -47,7 +47,7 @@ export function placePiece(
   return location;
 }
 
-export function removePiece(
+function removePiece(
   tiling: number[][],
   piece: number[][],
   row: number,
@@ -69,7 +69,7 @@ export function removePiece(
 }
 
 // Rotates the piece 90 degrees clockwise
-export function rotatePiece(piece: number[][]): number[][] {
+function rotatePiece(piece: number[][]): number[][] {
   const rows = piece.length;
   const cols = piece[0].length;
   const rotated: number[][] = Array.from({ length: cols }, () =>
