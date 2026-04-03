@@ -137,7 +137,7 @@ function isSameArray(arr1: number[], arr2: number[]): boolean {
   return true;
 }
 
-export function solvePuzzle({
+export function solveHardPuzzle({
   emptyGrid,
   barTick,
   userTick,
@@ -170,7 +170,7 @@ export function solvePuzzle({
               addPieceLocation,
             );
             if (
-              solvePuzzle({
+              solveHardPuzzle({
                 emptyGrid,
                 barTick,
                 userTick,
