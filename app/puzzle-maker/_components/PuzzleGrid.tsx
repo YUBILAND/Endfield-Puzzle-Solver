@@ -1,16 +1,7 @@
 import React from "react";
 import { BarGroup } from "./BarGroup";
 
-function PuzzleGrid({
-  gridSize,
-  gridTics,
-  filledCells,
-  pieceLocations,
-  solved,
-  handleClickBar,
-  handleEraseBar,
-  showBarTicks = { top: true, left: true },
-}: {
+type PuzzleGridProps = {
   gridSize: { rows: number; cols: number };
   gridTics: [number[], number[]];
   filledCells: number[][];
@@ -27,7 +18,18 @@ function PuzzleGrid({
     top?: boolean;
     left?: boolean;
   };
-}) {
+};
+
+function PuzzleGrid({
+  gridSize,
+  gridTics,
+  filledCells,
+  pieceLocations,
+  solved,
+  handleClickBar,
+  handleEraseBar,
+  showBarTicks = { top: true, left: true },
+}: PuzzleGridProps) {
   return (
     <div className="flex flex-col gap-y-1">
       {Array.from({ length: gridSize.rows }).map((_, rowIndex) => (
@@ -37,7 +39,7 @@ function PuzzleGrid({
               <BarGroup
                 barLocation="left"
                 gridSize={gridSize}
-                gridTics={gridTics[1]}
+                gridTics={gridTics}
                 rowColIndex={rowIndex}
                 handleClickBar={handleClickBar}
                 handleEraseBar={handleEraseBar}
@@ -60,7 +62,7 @@ function PuzzleGrid({
                         <BarGroup
                           barLocation="top"
                           gridSize={gridSize}
-                          gridTics={gridTics[0]}
+                          gridTics={gridTics}
                           rowColIndex={colIndex}
                           handleClickBar={handleClickBar}
                           handleEraseBar={handleEraseBar}
@@ -86,6 +88,7 @@ function PuzzleGrid({
     </div>
   );
 }
+
 const ShowSolution = ({
   pieceLocations,
   rowIndex,

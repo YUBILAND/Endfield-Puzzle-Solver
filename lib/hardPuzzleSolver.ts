@@ -11,22 +11,26 @@ function canPlacePiece(
       const pieceCellExists = piece[i][j] === 1;
       if (pieceCellExists) {
         // Map the piece coordinates to the emptyGrid coordinates
-        const emptyGridRow = row + i;
-        const emptyGridCol = col + j;
+        const mappedGridRow = row + i;
+        const mappedGridCol = col + j;
 
         const outOfBounds =
-          emptyGridRow >= emptyGrid.length ||
-          emptyGridCol >= emptyGrid[0].length ||
-          emptyGrid[emptyGridRow][emptyGridCol] !== 0;
+          mappedGridRow >= emptyGrid.length ||
+          mappedGridCol >= emptyGrid[0].length ||
+          emptyGrid[mappedGridRow][mappedGridCol] !== 0;
 
         const hBar = barTick[0];
         const vBar = barTick[1];
         const user_hBar = userTick[0];
         const user_vBar = userTick[1];
 
+        // console.log("Trying to place piece at", { row, col });
+        // console.log("Current bar ticks:", { hBar, vBar });
+        // console.log("User bar ticks:", { user_hBar, user_vBar });
+
         const tickExceeds =
-          hBar[emptyGridCol] > user_hBar[emptyGridCol] ||
-          vBar[emptyGridRow] > user_vBar[emptyGridRow];
+          hBar[mappedGridCol] > user_hBar[mappedGridCol] ||
+          vBar[mappedGridRow] > user_vBar[mappedGridRow];
 
         if (outOfBounds || tickExceeds) {
           // Out of bounds or overlapping with a non-empty cell
@@ -62,6 +66,7 @@ function placePiece(
   }
   const location = { piece, cells };
   addPieceLocation(location);
+
   return location;
 }
 
@@ -145,6 +150,11 @@ export function solveHardPuzzle({
   addPieceLocation,
   removePieceLocation,
 }: PuzzleSolver): boolean {
+  // console.log(
+  //   "checking match",
+  //   JSON.stringify(barTick),
+  //   JSON.stringify(userTick),
+  // );
   const ticksMatch =
     isSameArray(barTick[0], userTick[0]) &&
     isSameArray(barTick[1], userTick[1]);
@@ -169,6 +179,7 @@ export function solveHardPuzzle({
               j,
               addPieceLocation,
             );
+            // console.log("barTick after place", JSON.stringify(barTick));
             if (
               solveHardPuzzle({
                 emptyGrid,

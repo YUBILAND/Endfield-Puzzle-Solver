@@ -5,6 +5,8 @@ export function useGridTics(gridSize: { rows: number; cols: number }) {
     Array.from({ length: gridSize!.cols }, () => 0),
     Array.from({ length: gridSize!.rows }, () => 0),
   ]);
+
+  // console.log("gridtics in state is", gridTics);
   const handleClickBar = (
     position: "top" | "left",
     rowIndex: number,
@@ -34,5 +36,5 @@ export function useGridTics(gridSize: { rows: number; cols: number }) {
     setGridTics(newGridTics);
   };
 
-  return { gridTics, handleClickBar, handleEraseBar };
+  return { gridTics, handleClickBar, handleEraseBar, setGridTics };
 }

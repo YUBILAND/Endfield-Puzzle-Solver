@@ -72,8 +72,8 @@ export function usePieceEditor({
 
 const alignToTopLeft = (newPiece: [number, number][]) => {
   const getMinMaxPieceCoords = (piece: [number, number][]) => {
-    const rows = piece.map(([_, rowIndex]) => rowIndex);
-    const cols = piece.map(([colIndex, _]) => colIndex);
+    const rows = piece.map(([rowIndex, _]) => rowIndex);
+    const cols = piece.map(([_, colIndex]) => colIndex);
     const minRow = Math.min(...rows);
     const maxRow = Math.max(...rows);
     const minCol = Math.min(...cols);
@@ -93,7 +93,7 @@ const alignToTopLeft = (newPiece: [number, number][]) => {
     Array.from({ length: maxCol - minCol + 1 }, () => 0),
   );
   // Fill in the cells of the new piece in the new coordinate system
-  newPiece.forEach(([col, row]) => {
+  newPiece.forEach(([row, col]) => {
     preparedPiece[row - offset.row][col - offset.col] = 1;
   });
 

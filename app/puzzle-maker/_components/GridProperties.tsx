@@ -1,5 +1,4 @@
-"use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { GridSelect } from "react-grid-select";
 
 type GridSelectArea = {
@@ -7,11 +6,11 @@ type GridSelectArea = {
   height: number | null;
 };
 
-function SizeStep({
+const GridProperties = ({
   setGridSize,
 }: {
   setGridSize: (rows: number, cols: number) => void;
-}) {
+}) => {
   const [selectedArea, setSelectedArea] = useState<GridSelectArea>({
     width: null,
     height: null,
@@ -31,16 +30,15 @@ function SizeStep({
 
   const handleFinishGridSelect = () => {
     if (selectedArea.width && selectedArea.height) {
-      setGridSize(selectedArea.width, selectedArea.height);
+      setGridSize(selectedArea.height, selectedArea.width);
     }
   };
-
   return (
-    <div>
-      <div>Select Grid Size</div>
+    <>
+      <div>Grid Size</div>
 
       <div>
-        {selectedArea.width} x {selectedArea.height}
+        {selectedArea.height} x {selectedArea.width}
       </div>
 
       <GridSelect
@@ -49,9 +47,12 @@ function SizeStep({
         onRegionUpdate={handleUpdateRegion}
         styles={gridSelectStyles}
       />
-      <button onClick={handleFinishGridSelect}>Done</button>
-    </div>
-  );
-}
 
-export default SizeStep;
+      <button className="cursor-pointer" onClick={handleFinishGridSelect}>
+        Done
+      </button>
+    </>
+  );
+};
+
+export default GridProperties;

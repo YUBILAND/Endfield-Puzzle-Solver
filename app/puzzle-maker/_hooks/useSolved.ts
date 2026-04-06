@@ -5,10 +5,12 @@ import { usePieceLocations } from "./usePieceLocations";
 
 export function useSolved({
   gridSize,
-  currentPieces,
+  availablePieces,
+  gridTics,
 }: {
   gridSize: { rows: number; cols: number };
-  currentPieces: any[];
+  availablePieces: number[][][];
+  gridTics: [number[], number[]];
 }) {
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
 
@@ -16,22 +18,20 @@ export function useSolved({
 
   const [filledCells, setFilledCells] = useState<number[][] | null>(null);
 
-  const emptyGrid = Array.from({ length: gridSize?.rows ?? 0 }, () =>
-    Array.from({ length: gridSize?.cols ?? 0 }, () => 0),
-  );
   const handleSolvePuzzle = () => {
+    const baseEmptyGrid = Array.from({ length: gridSize?.rows ?? 0 }, () =>
+      Array.from({ length: gridSize?.cols ?? 0 }, () => 0),
+    );
+    const baseBarTics = [
+      Array.from({ length: gridSize?.cols ?? 0 }, () => 0),
+      Array.from({ length: gridSize?.rows ?? 0 }, () => 0),
+    ];
     const start = performance.now();
     const result = solveHardPuzzle({
-      emptyGrid: emptyGrid,
-      barTick: [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-      ],
-      userTick: [
-        [5, 4, 3, 2, 1],
-        [5, 4, 3, 2, 1],
-      ],
-      pieces: currentPieces,
+      emptyGrid: baseEmptyGrid,
+      barTick: baseBarTics,
+      userTick: gridTics,
+      pieces: availablePieces,
       addPieceLocation,
       removePieceLocation,
     });
@@ -39,7 +39,7 @@ export function useSolved({
     if (result) {
       console.log("Puzzle solved");
       setSolved(true);
-      setFilledCells(emptyGrid); //Empty grid is mutated with correct solution. Save to state to store solution.
+      setFilledCells(baseEmptyGrid); //Empty grid is mutated with correct solution. Save to state to store solution.
     } else {
       console.log("No solution found");
       setSolved(false);
@@ -54,5 +54,19 @@ export function useSolved({
   const { pieceLocations, addPieceLocation, removePieceLocation } =
     usePieceLocations(gridSize);
 
-  return { solved, elapsedMs, pieceLocations, filledCells, handleSolvePuzzle };
+  const handleClearPuzzle = () => {
+    setSolved(null);
+    setFilledCells(null);
+    setElapsedMs(null);
+    pieceLocations.forEach((location) => removePieceLocation(location));
+  };
+
+  return {
+    solved,
+    elapsedMs,
+    pieceLocations,
+    filledCells,
+    handleSolvePuzzle,
+    handleClearPuzzle,
+  };
 }

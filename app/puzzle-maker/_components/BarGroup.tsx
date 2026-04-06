@@ -9,7 +9,7 @@ export const BarGroup = ({
   barLocation: "top" | "left";
   gridSize: { rows: number; cols: number };
   rowColIndex: number;
-  gridTics: number[];
+  gridTics: number[][];
   handleClickBar: (
     position: "top" | "left",
     rowIndex: number,
@@ -30,13 +30,13 @@ export const BarGroup = ({
           barIndex={barIndex}
           onClick={() => handleClickBar("top", barIndex, rowColIndex, barIndex)}
           cellIndex={rowColIndex}
-          gridTics={gridTics}
+          gridTics={gridTics[0]}
         />
       ))}
 
       <BarDelete
         barLocation="top"
-        gridTics={gridTics}
+        gridTics={gridTics[0]}
         barIndex={rowColIndex}
         handleEraseBar={handleEraseBar}
       />
@@ -52,7 +52,7 @@ export const BarGroup = ({
           barLocation="left"
           barIndex={colIndex}
           cellIndex={rowColIndex}
-          gridTics={gridTics}
+          gridTics={gridTics[1]}
           onClick={() =>
             handleClickBar("left", rowColIndex, colIndex, colIndex)
           }
@@ -60,7 +60,7 @@ export const BarGroup = ({
       ))}
       <BarDelete
         barLocation="left"
-        gridTics={gridTics}
+        gridTics={gridTics[1]}
         barIndex={rowColIndex}
         handleEraseBar={handleEraseBar}
       />

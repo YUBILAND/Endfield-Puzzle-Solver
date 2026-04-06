@@ -1,6 +1,73 @@
+import { Trash } from "lucide-react";
 import { usePieceEditor } from "../_hooks/usePieceEditor";
 
 export const PieceGrid = ({
+  gridSize,
+  availablePieces,
+  setAvailablePieces,
+}: {
+  gridSize: { rows: number; cols: number };
+  availablePieces: number[][][];
+  setAvailablePieces: React.Dispatch<React.SetStateAction<number[][][]>>;
+}) => {
+  const handleRemovePiece = (pieceIndex: number) => {
+    const newAvailablePieces = [...availablePieces];
+    newAvailablePieces.splice(pieceIndex, 1);
+    setAvailablePieces(newAvailablePieces);
+  };
+  return (
+    <>
+      {/* Top Widgets */}
+      <TopArt />
+      <div className="flex flex-col items-center bg-white/40 backdrop-blur-xl p-4 gap-y-8">
+        {/* Puzzle Pieces */}
+        <AvailablePieces
+          availablePieces={availablePieces}
+          handleRemovePiece={handleRemovePiece}
+        />
+
+        <CreatePiece
+          gridSize={gridSize}
+          availablePieces={availablePieces}
+          setAvailablePieces={setAvailablePieces}
+        />
+      </div>
+      <OsuGradient />
+      <BottomArt />
+    </>
+  );
+};
+
+const AvailablePieces = ({
+  availablePieces,
+  handleRemovePiece,
+}: {
+  availablePieces: number[][][];
+  handleRemovePiece: (pieceIndex: number) => void;
+}) => {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      {availablePieces.map((piece, pieceIndex) => {
+        const pieceWidth = piece[0].length;
+        const pieceHeight = piece.length;
+        const cellSize = 50 / Math.max(pieceWidth, pieceHeight);
+
+        return (
+          <div
+            key={pieceIndex}
+            className="relative flex flex-col items-center justify-center p-4 bg-black/50"
+          >
+            <PieceDeleteButton onClick={() => handleRemovePiece(pieceIndex)} />
+            <PieceCellMarkings />
+            <DisplayPiece piece={piece} cellSize={cellSize} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const CreatePiece = ({
   gridSize,
   availablePieces,
   setAvailablePieces,
@@ -18,74 +85,64 @@ export const PieceGrid = ({
   } = usePieceEditor({ gridSize, availablePieces, setAvailablePieces });
   return (
     <>
-      {/* Top Widgets */}
-      <TopArt />
-      <div className="flex flex-col items-center bg-white/40 backdrop-blur-xl p-4 gap-y-8">
-        {/* Right Side */}
-
-        {/* Puzzle Pieces */}
-        <div className="grid grid-cols-2 gap-4">
-          {availablePieces.map((piece, pieceIndex) => {
-            const pieceWidth = piece[0].length;
-            const pieceHeight = piece.length;
-
-            const cellSize = 50 / Math.max(pieceWidth, pieceHeight);
-
-            return (
-              <div
-                key={pieceIndex}
-                className="relative flex flex-col items-center justify-center p-4  bg-black/50"
-              >
-                <PieceCellMarkings />
-                {piece.map((row, rowIndex) => (
-                  <div key={rowIndex} className="flex ">
-                    {row.map((cell, colIndex) => (
-                      <div
-                        key={colIndex}
-                        className={` ${cell ? "bg-green-500 border" : "bg-transparent"}`}
-                        style={{
-                          width: `${cellSize}px`,
-                          height: `${cellSize}px`,
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-
-        {gridSize && (
-          <div>
-            <div>Add Pieces</div>
-            <CellGrid
-              gridSize={gridSize}
-              highlightedCells={highlightedCells}
-              onClick={(rowIndex, colIndex) =>
-                handleHighlightCells(rowIndex, colIndex)
-              }
-            />
-            <div className="flex flex-row items-center justify-center gap-x-4">
-              <button
-                className={`cursor-pointer ${newPiece.length === 0 ? "opacity-50 pointer-events-none" : ""}`}
-                onClick={() => handleAddPiece()}
-              >
-                Add
-              </button>
-              <button
-                className="cursor-pointer"
-                onClick={() => handleClearPiece()}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        )}
+      <div>Add Pieces</div>
+      <CellGrid
+        gridSize={gridSize}
+        highlightedCells={highlightedCells}
+        onClick={(rowIndex, colIndex) =>
+          handleHighlightCells(rowIndex, colIndex)
+        }
+      />
+      <div className="flex flex-row items-center justify-center gap-x-4">
+        <button
+          className={`cursor-pointer ${newPiece.length === 0 ? "opacity-50 pointer-events-none" : ""}`}
+          onClick={() => handleAddPiece()}
+        >
+          Add
+        </button>
+        <button className="cursor-pointer" onClick={() => handleClearPiece()}>
+          Clear
+        </button>
       </div>
-      <OsuGradient />
-      <BottomArt />
     </>
+  );
+};
+
+const DisplayPiece = ({
+  piece,
+  cellSize,
+}: {
+  piece: number[][];
+  cellSize: number;
+}) => {
+  return (
+    <div className="flex flex-col">
+      {piece.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex ">
+          {row.map((cell, colIndex) => (
+            <div
+              key={colIndex}
+              className={` ${cell ? "bg-green-500 border" : "bg-transparent"}`}
+              style={{
+                width: `${cellSize}px`,
+                height: `${cellSize}px`,
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PieceDeleteButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <div
+      className="absolute top-0 right-0 translate-x-3 -translate-y-3 w-6 h-6 rounded-full bg-red-400 flex items-center justify-center cursor-pointer"
+      onClick={onClick}
+    >
+      <Trash size={16} />
+    </div>
   );
 };
 
@@ -139,9 +196,9 @@ const CellGrid = ({
   onClick?: (rowIndex: number, colIndex: number) => void;
 }) => {
   return (
-    <div className="flex flex-row gap-1">
+    <div className="flex flex-col gap-1">
       {Array.from({ length: gridSize.rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-1 gap-1">
+        <div key={rowIndex} className="relative flex gap-x-1 ">
           {Array.from({ length: gridSize.cols }).map((_, colIndex) => (
             <div
               key={colIndex}
