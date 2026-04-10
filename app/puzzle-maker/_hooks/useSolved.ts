@@ -7,20 +7,27 @@ export function useSolved({
   gridSize,
   availablePieces,
   gridTics,
+  blockedCells,
 }: {
   gridSize: { rows: number; cols: number };
   availablePieces: number[][][];
   gridTics: [number[], number[]];
+  blockedCells?: number[][];
 }) {
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
-
   const [solved, setSolved] = useState<boolean | null>(null);
-
   const [filledCells, setFilledCells] = useState<number[][] | null>(null);
 
   const handleSolvePuzzle = () => {
     const baseEmptyGrid = Array.from({ length: gridSize?.rows ?? 0 }, () =>
       Array.from({ length: gridSize?.cols ?? 0 }, () => 0),
+    );
+    blockedCells?.forEach((row, rowIndex) =>
+      row.forEach((cell, colIndex) => {
+        if (cell === 1) {
+          baseEmptyGrid[rowIndex][colIndex] = 1;
+        }
+      }),
     );
     const baseBarTics = [
       Array.from({ length: gridSize?.cols ?? 0 }, () => 0),

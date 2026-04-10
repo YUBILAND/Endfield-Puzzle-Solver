@@ -4,7 +4,6 @@ export const BarGroup = ({
   rowColIndex,
   gridTics,
   handleClickBar,
-  handleEraseBar,
 }: {
   barLocation: "top" | "left";
   gridSize: { rows: number; cols: number };
@@ -16,7 +15,6 @@ export const BarGroup = ({
     colIndex: number,
     index: number,
   ) => void;
-  handleEraseBar: (position: "top" | "left", index: number) => void;
 }) => {
   return barLocation === "top" ? (
     <>
@@ -33,13 +31,6 @@ export const BarGroup = ({
           gridTics={gridTics[0]}
         />
       ))}
-
-      <BarDelete
-        barLocation="top"
-        gridTics={gridTics[0]}
-        barIndex={rowColIndex}
-        handleEraseBar={handleEraseBar}
-      />
     </>
   ) : (
     <>
@@ -58,47 +49,10 @@ export const BarGroup = ({
           }
         />
       ))}
-      <BarDelete
-        barLocation="left"
-        gridTics={gridTics[1]}
-        barIndex={rowColIndex}
-        handleEraseBar={handleEraseBar}
-      />
     </>
   );
 };
 
-const BarDelete = ({
-  barLocation,
-  gridTics,
-  barIndex,
-  handleEraseBar,
-}: {
-  barLocation: "top" | "left";
-  gridTics: number[];
-  barIndex: number;
-  handleEraseBar: (position: "top" | "left", index: number) => void;
-}) => {
-  return barLocation === "top" ? (
-    <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-1 cursor-pointer"
-      onClick={() => handleEraseBar("top", barIndex)}
-    >
-      {gridTics[barIndex] > 0 && (
-        <div className="w-12 h-2 bg-red-400 rounded-2xl" />
-      )}
-    </div>
-  ) : (
-    <div
-      className="absolute left-full top-1/2 -translate-y-1/2 ml-1 cursor-pointer"
-      onClick={() => handleEraseBar("left", barIndex)}
-    >
-      {gridTics[barIndex] > 0 && (
-        <div className="w-2 h-12 bg-red-400 rounded-2xl" />
-      )}
-    </div>
-  );
-};
 
 const Bars = ({
   barLocation,
